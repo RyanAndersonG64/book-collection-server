@@ -10,17 +10,16 @@ class Profile(models.Model):
         return self.user.username
     
 class Author(models.Model):
-    first_name = models.TextField()
-    last_name = models.TextField()
+    name = models.TextField()
 
     def __str__(self):
-        return (f'{self.first_name} {self.last_name}')
+        return (f'{self.name}')
     
 class Book(models.Model):
     title = models.TextField()
     published = models.IntegerField()
     author = models.ForeignKey(Author, on_delete=models.CASCADE, null=True, blank=True)
-    reader = models.ManyToManyField(Profile)
+    readers = models.ManyToManyField(Profile)
 
     def __str__(self):
         return (f'{self.title} - {self.author}, published {self.published}')

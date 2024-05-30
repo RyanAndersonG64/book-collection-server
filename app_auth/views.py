@@ -38,6 +38,43 @@ class AuthorViewSet(viewsets.ModelViewSet):
     queryset = Author.objects.all()
     serializer_class = AuthorSerializer
 
+@api_view(['POST'])
+@permission_classes([])
+def create_author(request):
+    author = Author.objects.create(
+        name = request.data.get('name'),
+    )
+    author.save()
+    serialized_author = AuthorSerializer(author)
+    return Response(serialized_author.data)
+
 class BookViewSet(viewsets.ModelViewSet):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
+
+@api_view(['POST'])
+@permission_classes([])
+def create_book(request):
+    book = Book.objects.create(
+        title = request.data.get('title'),
+        author = request.data.get('author'),
+        published = request.data.get('published'),
+    )
+    book.readers.add(request.data.get('readers'))
+    book.save()
+    serialized_book = BookSerializer(book)
+    return Response(serialized_book.data)
+
+@api_view(['PUT'])
+@permission_classes([])
+def add_reader(request):
+    book_pk = request.data.get('bookId')
+    book = Book.objects.get(pk=book_pk)
+    reader_id = request.data.get('readers')
+    print(book_pk)
+    print(reader_id)
+    reader = Profile.objects.get(pk = reader_id)
+    book.readers.add(reader)
+    book.save()
+    serialized_book = BookSerializer(book)
+    return Response(serialized_book.data)
