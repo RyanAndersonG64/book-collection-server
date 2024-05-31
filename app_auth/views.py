@@ -2,6 +2,10 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes
+from django.utils.decorators import method_decorator
+from django.contrib.auth.decorators import permission_required
+from rest_framework.views import APIView
+
 
 from .models import *
 from .serializers import *
@@ -55,11 +59,6 @@ def create_book(request):
         author = author,
         published = request.data['published'],
     )
-    # if Author.objects.get(name = author_data):
-    #     book.author.add(name = author_data)
-    # else:
-    #     author = Author(author_data)
-    #     book.author.add(author)
     book.readers.add(request.data.get('readers'))
     book.save()
     serialized_book = BookSerializer(book)
@@ -78,3 +77,28 @@ def add_reader(request):
     book.save()
     serialized_book = BookSerializer(book)
     return Response(serialized_book.data)
+
+@api_view(['PUT'])
+@permission_classes([])
+def remove_reader(request):
+    book_pk = request.data.get('bookId')
+    book = Book.objects.get(pk=book_pk)
+    reader_id = request.data.get('readers')
+    print(book_pk)
+    print(reader_id)
+    reader = Profile.objects.get(pk = reader_id)
+    print(f'readers before remove: {book.readers}')
+    book.readers.remove(reader)
+    print(f'readers after remove: {book.readers}')
+    book.save()
+    serialized_book = BookSerializer(book)
+    return Response(serialized_book.data)
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_book(request):
+    book_pk = request.data.get('bookId')
+    print(f'book pk ={book_pk}')
+    book = Book.objects.get(pk=book_pk)
+    book.delete()
+    return Response
