@@ -18,7 +18,7 @@ def get_profile(request):
     return Response(serialized_profile.data)
 
 @api_view(['POST'])
-@permission_classes([])
+@permission_classes([IsAuthenticated])
 def create_user(request):
     user = User.objects.create(
         username = request.data['username'],
@@ -38,35 +38,35 @@ class AuthorViewSet(viewsets.ModelViewSet):
     queryset = Author.objects.all()
     serializer_class = AuthorSerializer
 
-@api_view(['POST'])
-@permission_classes([])
-def create_author(request):
-    author = Author.objects.create(
-        name = request.data.get('name'),
-    )
-    author.save()
-    serialized_author = AuthorSerializer(author)
-    return Response(serialized_author.data)
+
 
 class BookViewSet(viewsets.ModelViewSet):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
 
 @api_view(['POST'])
-@permission_classes([])
+@permission_classes([IsAuthenticated])
 def create_book(request):
+    print(f'wefewfewfsafwetrweherh {request.data}')
+    author_data = request.data.get('author', {}.get('name'))
+    author, created = Author.objects.get_or_create(name=author_data)
     book = Book.objects.create(
-        title = request.data.get('title'),
-        author = request.data.get('author'),
-        published = request.data.get('published'),
+        title = request.data['title'],
+        author = author,
+        published = request.data['published'],
     )
+    # if Author.objects.get(name = author_data):
+    #     book.author.add(name = author_data)
+    # else:
+    #     author = Author(author_data)
+    #     book.author.add(author)
     book.readers.add(request.data.get('readers'))
     book.save()
     serialized_book = BookSerializer(book)
     return Response(serialized_book.data)
 
 @api_view(['PUT'])
-@permission_classes([])
+@permission_classes([IsAuthenticated])
 def add_reader(request):
     book_pk = request.data.get('bookId')
     book = Book.objects.get(pk=book_pk)

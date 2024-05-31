@@ -30,7 +30,7 @@ urlpatterns = [
     path('profile/', get_profile),
     path('token/', TokenObtainPairView.as_view()),
     path('create-user/', create_user),
-    path('create-author/', create_author),
+    # path('create-author/', create_author),
     path('create-book/', create_book),
     path('add-reader/', add_reader),
     path('', include(router.urls)),
